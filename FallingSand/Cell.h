@@ -10,10 +10,9 @@ struct Elemenet {
 	bool travel_down_diagonal;
 	bool travel_sideways;
 
+	short density;
+
 	sf::Color colour;
-
-	short index = -1; //empty by default
-
 };
 
 

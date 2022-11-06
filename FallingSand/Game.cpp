@@ -21,9 +21,9 @@ void Game::start() {
 	cell_graphic.setSize(sf::Vector2f(1, 1));
 
 	//defining the element types
-	elements.push_back({ true, true, false, sf::Color(242, 205, 136)}); //SAND
-	elements.push_back({ true, true, true, sf::Color(162, 209, 224)}); //WATER
-	elements.push_back({ false, false, false, sf::Color(121, 127, 138) }); //STONE
+	elements.push_back({ true, true, false, 5, sf::Color(242, 205, 136)}); //SAND
+	elements.push_back({ true, true, true, 4, sf::Color(162, 209, 224)}); //WATER
+	elements.push_back({ false, false, false, 5, sf::Color(121, 127, 138) }); //STONE
 
 	//resizing grid to fit screen size
 	cell_grid.resize(DISPLAY_SIZE.x);
@@ -154,21 +154,23 @@ void Game::update() {
 				bounded_x = true;
 			}
 
-			if (bounded_y && elements[i].travel_down && cell_grid[x][y + 1].index == -1) { //DOWN
-				//move to empty place
-				cell_grid[x][y].index = -1;
-				cell_grid[x][y + 1] = current_cell;
-				goto moved_cell;
-
+			if (bounded_y && elements[i].travel_down){
+				
+				if (cell_grid[x][y + 1].index == -1 || elements[cell_grid[x][y + 1].index].density < elements[i].density) { //DOWN
+					//move to empty place
+					cell_grid[x][y] = cell_grid[x][y + 1];
+					cell_grid[x][y + 1] = current_cell;
+					goto moved_cell;
+				}
 			}
 			if (bounded_y && bounded_x && elements[i].travel_down_diagonal) { //DIAGONAL
-				if (cell_grid[x + 1][y + 1].index == -1) {
-					cell_grid[x][y].index = -1;
+				if (cell_grid[x + 1][y + 1].index == -1 || elements[cell_grid[x + 1][y + 1].index].density < elements[i].density) {
+					cell_grid[x][y] = cell_grid[x + 1][y + 1];
 					cell_grid[x + 1][y + 1] = current_cell;
 					goto moved_cell;
 				}
-				else if (cell_grid[x - 1][y + 1].index == -1) {
-					cell_grid[x][y].index = -1;
+				else if (cell_grid[x - 1][y + 1].index == -1 || elements[cell_grid[x - 1][y + 1].index].density < elements[i].density) {
+					cell_grid[x][y] = cell_grid[x - 1][y + 1];
 					cell_grid[x - 1][y + 1] = current_cell;
 					goto moved_cell;
 				}
