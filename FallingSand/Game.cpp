@@ -74,9 +74,14 @@ void Game::update() {
 
 
 	if (INPUTS.left_mouse) {
-		cell_grid[mouse_pos.x][mouse_pos.y] = 0;
-	}
+		int size = 4;
 
+		for (int x = -size; x < size; x++) {
+			for (int y = -size; y < size; y++) {
+				cell_grid[mouse_pos.x + x][mouse_pos.y + y] = 0;
+			}
+		}
+	}
 
 	//iterating every cell
 	for (int x = 0; x < DISPLAY_SIZE.x; x++) {
