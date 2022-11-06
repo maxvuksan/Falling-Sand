@@ -6,6 +6,7 @@
 
 struct Inputs {
 	bool left_mouse;
+	bool right_mouse;
 };
 
 class Game {
@@ -26,10 +27,12 @@ class Game {
 		//////////////////////////////////////////////////
 
 		sf::Vector2i mouse_pos;
+		sf::RectangleShape mouse_graphic;
 
+		short current_index;
 		sf::RectangleShape cell_graphic;
-		std::vector<Cell> cells;
-		std::vector<std::vector<short>> cell_grid;
+		std::vector<Elemenet> elements;
+		std::vector<std::vector<Cell>> cell_grid;
 
 
 	public:
@@ -39,9 +42,9 @@ class Game {
 		~Game();
 
 		void start();
-
 		void run();
-
 		void poll_events();
 		void update();
+
+		void set_cell(int x, int y, short cell);
 };
