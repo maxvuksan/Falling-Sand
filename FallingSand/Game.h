@@ -1,6 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
 #include "Cell.h"
+
+struct Inputs {
+	bool left_mouse;
+};
 
 class Game {
 
@@ -15,8 +21,13 @@ class Game {
 		sf::Clock CLOCK;
 		sf::Color BACKGROUND_COLOUR;
 
+		Inputs INPUTS;
+
 		//////////////////////////////////////////////////
 
+		sf::Vector2i mouse_pos;
+
+		sf::RectangleShape cell_graphic;
 		std::vector<Cell> cells;
 		std::vector<std::vector<short>> cell_grid;
 
