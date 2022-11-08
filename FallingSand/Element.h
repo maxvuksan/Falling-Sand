@@ -5,6 +5,8 @@ class Element { //DERIVED BY : MovingSolid, StaticSolid, Liquid and Gas
 
 	public:
 		//which directions will the element move in
+		std::string name;
+		
 		bool travel_down; 
 		bool travel_down_diagonal;
 		bool travel_sideways; 

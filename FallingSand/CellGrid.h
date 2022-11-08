@@ -6,10 +6,12 @@
 #include "Element.h"
 #include "Chunk.h"
 
+class Game;
+
 class CellGrid {
 
 	private:
-		std::vector<Element*> elements;
+		Game* game;
 
 		sf::Image world_graphic;
 
@@ -24,7 +26,7 @@ class CellGrid {
 		int chunk_height;
 
 	public:
-		CellGrid(sf::Vector2i dimensions);
+		CellGrid(Game*, sf::Vector2i dimensions);
 
 		void set_cell(sf::Vector2i position, short index);
 		void set_area(sf::Vector2i position, short index, short size);
@@ -34,6 +36,8 @@ class CellGrid {
 		void update_chunk(Chunk&, sf::RenderTexture&);
 		void awake_chunk_at(sf::Vector2i position);
 		void sleep_all_chunks();
+
+		void reset();
 
 		void cell_logic(int x, int y);
 		void update(sf::RenderTexture&);

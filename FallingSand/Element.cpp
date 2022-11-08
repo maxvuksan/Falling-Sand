@@ -2,6 +2,8 @@
 
 Element::Element()
 {
+	name = "";
+
 	desired_spread = 1;
 	gravity_direction = 1;
 	is_static = false;
@@ -16,6 +18,7 @@ MovingSolid::MovingSolid() {
 	density = 3;
 }
 Sand::Sand() {
+	name = "SAND";
 	colour = sf::Color(242, 205, 136);
 	desired_spread = 2;
 }
@@ -28,6 +31,7 @@ StaticSolid::StaticSolid() {
 	density = 10;
 }
 Stone::Stone() {
+	name = "STONE";
 	colour = sf::Color(121, 127, 138);
 }
 
@@ -41,6 +45,7 @@ Liquid::Liquid() {
 	desired_spread = 4;
 }
 Water::Water() {
+	name = "WATER";
 	colour = sf::Color(162, 209, 224);
 }
 
@@ -55,5 +60,6 @@ Gas::Gas() {
 	density = 1;
 }
 Smoke::Smoke() {
+	name = "SMOKE";
 	colour = sf::Color(52, 53, 54);
 }

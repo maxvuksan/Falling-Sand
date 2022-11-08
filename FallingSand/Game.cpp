@@ -1,19 +1,31 @@
 #include "Game.h"
+#include "CellGrid.h"
 
 Game::Game() :
 	WINDOW_SIZE(700, 700),
 	DISPLAY_SIZE(300, 300),
 
-	BACKGROUND_COLOUR(30,25,40),
-	cell_grid(DISPLAY_SIZE)
+	BACKGROUND_COLOUR(30, 25, 40),
+	cell_grid(this, DISPLAY_SIZE),
+
+	current_index(0),
+	DELTA_TIME(0),
+	brush_size(4),
+	brush_MAX(16)
+	
 {
-	WINDOW = new sf::RenderWindow(sf::VideoMode(WINDOW_SIZE.x, WINDOW_SIZE.y), "Falling Sand");
+	WINDOW = new sf::RenderWindow(sf::VideoMode(WINDOW_SIZE.x, WINDOW_SIZE.y), "Falling Sand", sf::Style::Close | sf::Style::Titlebar);
 	WINDOW->setFramerateLimit(140);
 
 	DISPLAY = new sf::RenderTexture;
 	DISPLAY->create(DISPLAY_SIZE.x, DISPLAY_SIZE.y);
 	
-	//ImGui::SFML::Init(*WINDOW);
+	ELEMENTS.push_back(new Sand);
+	ELEMENTS.push_back(new Water);
+	ELEMENTS.push_back(new Stone);
+	//ELEMENTS.push_back(new Smoke);
+
+	ImGui::SFML::Init(*WINDOW);
 }
 void Game::start() {
 
@@ -30,7 +42,7 @@ void Game::run() {
 		DISPLAY->clear(BACKGROUND_COLOUR);
 		
 		auto delta = CLOCK.restart();
-		//ImGui::SFML::Update(*WINDOW, delta);
+		ImGui::SFML::Update(*WINDOW, delta);
 		DELTA_TIME = delta.asSeconds();
 
 
@@ -45,23 +57,51 @@ void Game::run() {
 		display_sprite.setScale(sf::Vector2f(WINDOW_SIZE.x / (float)DISPLAY_SIZE.x, WINDOW_SIZE.y / (float)DISPLAY_SIZE.y));
 		WINDOW->draw(display_sprite);
 
-		//ImGui::Begin("t");
+		render_ui();
 
+		ImGui::SFML::Render(*WINDOW);
 
-		//ImGui::End();
-
-
-		//ImGui::SFML::Render();
 		WINDOW->display();
 	}
-	//ImGui::SFML::Shutdown();
+	ImGui::SFML::Shutdown();
 }
+
+void Game::render_ui() {
+	ImGui::Begin("##", NULL, ImGuiWindowFlags_NoTitleBar);
+	ImGui::SetWindowPos(ImVec2(5, 5));
+	ImGui::SetWindowSize(ImVec2(0, 0));
+	if (ImGui::Button("RESET")) {
+		cell_grid.reset();
+	}
+	ImGui::SliderInt("SIZE", &brush_size, 1, brush_MAX);
+	ImGui::Checkbox("SHOW CHUNKS", &SHOW_CHUNKS);
+	ImGui::Separator();
+	for (int i = 0; i < ELEMENTS.size(); i++) {
+		float colour[3] = { ELEMENTS[i]->colour.r / (float)255, ELEMENTS[i]->colour.g / (float)255, ELEMENTS[i]->colour.b / (float)255 };
+		ImGui::ColorEdit3("##", colour, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoTooltip);
+		ImGui::SameLine();
+
+		if(ImGui::Button(ELEMENTS[i]->name.c_str())) {
+			current_index = i;
+		}
+
+		if (current_index == i) {
+			ImGui::SameLine();
+			ImGui::Bullet();
+			ImGui::NewLine();
+		}
+	}
+	ImGui::Spacing();
+
+	ImGui::End();
+}
+
 void Game::poll_events() {
 
 	sf::Event event;
 	while (WINDOW->pollEvent(event))
 	{
-		//ImGui::SFML::ProcessEvent(event);
+		ImGui::SFML::ProcessEvent(event);
 
 		if (event.type == sf::Event::MouseButtonPressed) {
 			if (event.mouseButton.button == 0) {
@@ -71,7 +111,7 @@ void Game::poll_events() {
 				INPUTS.right_mouse = true;
 			}
 		}
-		if (event.type == sf::Event::MouseButtonReleased) {
+		else if (event.type == sf::Event::MouseButtonReleased) {
 			if (event.mouseButton.button == 0) {
 				INPUTS.left_mouse = false;
 			}
@@ -79,8 +119,17 @@ void Game::poll_events() {
 				INPUTS.right_mouse = false;
 			}
 		}
+		else if (event.type == sf::Event::MouseWheelScrolled) {
+			brush_size += round(event.mouseWheelScroll.delta);
+			if (brush_size > brush_MAX) {
+				brush_size = brush_MAX;
+			}
+			else if (brush_size < 1) {
+				brush_size = 1;
+			}
+		}
 
-		if (event.type == sf::Event::KeyPressed) {
+		else if (event.type == sf::Event::KeyPressed) {
 			switch (event.key.code) {
 				case sf::Keyboard::Num1:
 					current_index = 0;
@@ -105,17 +154,16 @@ void Game::poll_events() {
 
 void Game::update() {
 
-	short size = 10;
-	mouse_graphic.setSize(sf::Vector2f(size * 2, size * 2));
-	mouse_graphic.setPosition(sf::Vector2f(mouse_pos.x - size, mouse_pos.y - size));
+	mouse_graphic.setSize(sf::Vector2f(brush_size * 2, brush_size * 2));
+	mouse_graphic.setPosition(sf::Vector2f(mouse_pos.x - brush_size, mouse_pos.y - brush_size));
 
-	if (INPUTS.left_mouse || INPUTS.right_mouse) {
+	if (!ImGui::GetIO().WantCaptureMouse && (INPUTS.left_mouse || INPUTS.right_mouse)) {
 		short index = -1;
 
 		if (INPUTS.left_mouse) { index = current_index; }
 		else if (INPUTS.right_mouse) { index = -1; }
 
-		cell_grid.set_area(mouse_pos, index, size);
+		cell_grid.set_area(mouse_pos, index, brush_size);
 	}
 
 	cell_grid.update(*DISPLAY);
