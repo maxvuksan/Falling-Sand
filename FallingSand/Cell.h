@@ -3,16 +3,6 @@
 struct Cell {
 	short index;
 	bool updated;
+
+	bool prefer_left;
 };
-
-struct Elemenet {
-	bool travel_down;
-	bool travel_down_diagonal;
-	bool travel_sideways;
-
-	short density;
-
-	sf::Color colour;
-};
-
-

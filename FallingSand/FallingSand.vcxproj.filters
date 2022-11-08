@@ -21,12 +21,27 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Element.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CellGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Element.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CellGrid.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Cell.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Chunk.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

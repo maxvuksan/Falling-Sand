@@ -1,8 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+
+//#include <imgui.h>
+//#include <imgui-SFML.h>
+
 #include <iostream>
 
-#include "Cell.h"
+#include "CellGrid.h"
 
 struct Inputs {
 	bool left_mouse;
@@ -29,10 +33,9 @@ class Game {
 		sf::Vector2i mouse_pos;
 		sf::RectangleShape mouse_graphic;
 
-		short current_index;
-		sf::RectangleShape cell_graphic;
-		std::vector<Elemenet> elements;
-		std::vector<std::vector<Cell>> cell_grid;
+		short current_index; //what are we drawing with?
+		CellGrid cell_grid;
+
 
 
 	public:
