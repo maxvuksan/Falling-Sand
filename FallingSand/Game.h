@@ -41,6 +41,7 @@ class Game {
 
 
 	public:
+		
 		std::vector<Element*> ELEMENTS;
 		float DELTA_TIME;
 		bool SHOW_CHUNKS;
@@ -53,6 +54,4 @@ class Game {
 		void poll_events();
 		void render_ui();
 		void update();
-
-		void set_cell(int x, int y, short cell);
 };

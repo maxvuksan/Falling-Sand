@@ -4,9 +4,13 @@
 #include "Cell.h"
 #include "CellGrid.h"
 
-class Element { //DERIVED BY : MovingSolid, StaticSolid, Liquid and Gas
+class Game;
+
+class Element { //INHERITED BY : MovingSolid, StaticSolid, Liquid and Gas
 
 	public:
+		Game* game;
+
 		//which directions will the element move in
 		std::string name;
 		
@@ -25,7 +29,9 @@ class Element { //DERIVED BY : MovingSolid, StaticSolid, Liquid and Gas
 
 		Element();
 
+		void link_game(Game*);
 		virtual void acid_contact(CellGrid&, sf::Vector2i, Cell&);
+		virtual void lava_contact(CellGrid&, sf::Vector2i, Cell&);
 };
 ///////////////////////////////
 class MovingSolid : public Element { // MINIMAL FLOWING e.g. Sand, Dirt
@@ -50,6 +56,11 @@ class Wood : public StaticSolid {
 	public:
 		Wood();
 };
+class Metal : public StaticSolid {
+	public:
+		Metal();
+		void acid_contact(CellGrid&, sf::Vector2i, Cell&) override {}
+};
 ///////////////////////////////
 class Liquid : public Element { // CONSTANT FLOWING e.g. Water, Lava
 	public:
@@ -58,6 +69,11 @@ class Liquid : public Element { // CONSTANT FLOWING e.g. Water, Lava
 class Water : public Liquid {
 	public:
 		Water();
+		void lava_contact(CellGrid&, sf::Vector2i, Cell&) override;
+};
+class Lava : public Liquid {
+	public:
+		Lava();
 };
 class Acid : public Liquid {
 	public:

@@ -93,17 +93,25 @@ void CellGrid::cell_logic(int x, int y) {
 		return;
 	}
 
-	if (game->ELEMENTS[i]->name == "ACID") {
-		sf::Vector2i offsets[4] = {sf::Vector2i(0,1),sf::Vector2i(0,-1),sf::Vector2i(-1,0),sf::Vector2i(1,0) };
-		for (int of = 0; of < 4; of++) {
-			sf::Vector2i final_pos = sf::Vector2i(x, y) + offsets[of];
-			short current_index = grid[final_pos.x][final_pos.y].index;
-			if (current_index != -1 && current_index != i) { //the offsetted cell is not empty and is not acid
+
+	sf::Vector2i offsets[4] = {sf::Vector2i(0,1),sf::Vector2i(0,-1),sf::Vector2i(-1,0),sf::Vector2i(1,0) };
+	for (int of = 0; of < 4; of++) {
+		sf::Vector2i final_pos = sf::Vector2i(x, y) + offsets[of];
+		short current_index = grid[final_pos.x][final_pos.y].index;
+			
+		if (current_index != -1 && current_index != i) { //the offsetted cell is not empty and is not the same element
+
+			if (game->ELEMENTS[i]->name == "ACID") {
 				game->ELEMENTS[current_index]->acid_contact(*this, final_pos, grid[final_pos.x][final_pos.y]);
+				awake_chunk_at(sf::Vector2i(x, y));
+			}
+			else if (game->ELEMENTS[i]->name == "LAVA") {
+				game->ELEMENTS[current_index]->lava_contact(*this, final_pos, grid[final_pos.x][final_pos.y]);
 				awake_chunk_at(sf::Vector2i(x, y));
 			}
 		}
 	}
+
 
 	//vertical travel
 	short vt = game->ELEMENTS[i]->gravity_direction;
@@ -132,7 +140,7 @@ void CellGrid::cell_logic(int x, int y) {
 		}
 		if (grid[x - 1][y + vt].index == -1 || game->ELEMENTS[grid[x - 1][y + vt].index]->density < game->ELEMENTS[i]->density) {
 			grid[x][y].prefer_left = true;
-			swap_cells(sf::Vector2i(x, y), sf::Vector2i(x + 1, y - vt));
+			swap_cells(sf::Vector2i(x, y), sf::Vector2i(x - 1, y + vt));
 			return;
 		}
 		else if (grid[x + 1][y + vt].index == -1 || game->ELEMENTS[grid[x + 1][y + vt].index]->density < game->ELEMENTS[i]->density) {
@@ -155,10 +163,12 @@ void CellGrid::cell_logic(int x, int y) {
 			}
 		}
 		if (grid[x + 1][y].index == -1) {
+			grid[x][y].prefer_left = false;
 			swap_cells(sf::Vector2i(x, y), sf::Vector2i(x + 1, y));
 			return;
 		}
 		else if (grid[x - 1][y].index == -1) {
+			grid[x][y].prefer_left = true;
 			swap_cells(sf::Vector2i(x, y), sf::Vector2i(x - 1, y));
 			return;
 		}
@@ -189,7 +199,7 @@ void CellGrid::update_chunk(Chunk& chunk, sf::RenderTexture& surface) {
 	sf::Vector2i offset = sf::Vector2i(chunk.rect.getPosition().x, chunk.rect.getPosition().y);
 	//iterating every cell
 	for (int x = 0; x < chunk.rect.getSize().x; x++) {
-		for (int y = 0; y < chunk.rect.getSize().y; y++) {
+		for (int y = chunk.rect.getSize().y - 1; y >= 0; y--) {
 
 			int _x = x + offset.x;
 			int _y = y + offset.y;
@@ -222,7 +232,7 @@ void CellGrid::sleep_all_chunks() {
 void CellGrid::update(sf::RenderTexture& surface) {
 
 	for (int x = 0; x < chunk_division; x++) {
-		for (int y = 0; y < chunk_division; y++) {
+		for (int y = chunk_division - 1; y >= 0; y--) {
 			auto chunk = chunks[x][y];
 
 			update_chunk(chunk, surface);

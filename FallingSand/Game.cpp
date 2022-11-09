@@ -24,8 +24,14 @@ Game::Game() :
 	ELEMENTS.push_back(new Sand);
 	ELEMENTS.push_back(new Wood);
 	ELEMENTS.push_back(new Stone);
+	ELEMENTS.push_back(new Metal);
 	ELEMENTS.push_back(new Water);
+	ELEMENTS.push_back(new Lava);
 	ELEMENTS.push_back(new Acid);
+
+	for (int i = 0; i < ELEMENTS.size(); i++) {
+		ELEMENTS[i]->link_game(this);
+	}
 
 	ImGui::SFML::Init(*WINDOW);
 }

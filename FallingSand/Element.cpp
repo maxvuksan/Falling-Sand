@@ -10,14 +10,17 @@ Element::Element()
 	density = 2;
 	durability = 30;
 }
+void Element::link_game(Game* game) {
+	this->game = game;
+}
 void Element::acid_contact(CellGrid& grid, sf::Vector2i position, Cell& cell) {
 	cell.durability--;
 
 	if (cell.durability < 0) {
 		grid.remove_cell(position);
 	}
-
 }
+void Element::lava_contact(CellGrid& grid, sf::Vector2i position, Cell& cell) {}
 
 ///////////////////////////////
 MovingSolid::MovingSolid() {
@@ -50,6 +53,11 @@ Wood::Wood() {
 	colour = sf::Color(133, 102, 80);
 	durability = 8;
 }
+Metal::Metal() {
+	name = "METAL";
+	colour = sf::Color(193, 203, 219);
+}
+
 
 ///////////////////////////////
 Liquid::Liquid() {
@@ -64,6 +72,14 @@ Liquid::Liquid() {
 Water::Water() {
 	name = "WATER";
 	colour = sf::Color(162, 209, 224);
+}
+void Water::lava_contact(CellGrid& grid, sf::Vector2i position, Cell& cell) {
+	grid.set_cell(position, 2); //set to STONE (index 2)
+}
+
+Lava::Lava() {
+	name = "LAVA";
+	colour = sf::Color(255, 111, 59);
 }
 Acid::Acid() {
 	name = "ACID";
