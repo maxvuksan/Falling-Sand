@@ -1,5 +1,6 @@
 #include "CellGrid.h"
 #include "Game.h"
+#include "Element.h"
 
 CellGrid::CellGrid(Game* game, sf::Vector2i dimensions) {
 	this->game = game;
@@ -8,7 +9,6 @@ CellGrid::CellGrid(Game* game, sf::Vector2i dimensions) {
 	world_graphic.create(dimensions.x, dimensions.y);
 
 	reset();
-
 
 	chunk_awake_hold_time = 4;
 	chunk_division = 15;
@@ -40,14 +40,22 @@ void CellGrid::reset() {
 	//resizing grid to fit screen size
 	grid.resize(dimensions.x);
 	for (int i = 0; i < grid.size(); i++) {
-		grid[i].resize(dimensions.y, { -1, false });
+		grid[i].resize(dimensions.y, { -1 });
 	}
+}
+
+void CellGrid::remove_cell(sf::Vector2i position) {
+	set_cell(position, -1);
 }
 
 void CellGrid::set_cell(sf::Vector2i position, short index) {
 	if (position.x >= 0 && position.x < dimensions.x) {
 		if (position.y >= 0 && position.y < dimensions.y) {
-			grid[position.x][position.y] = { index, false };
+			
+			grid[position.x][position.y] = { index };
+			if (index != -1) {
+				grid[position.x][position.y].durability = game->ELEMENTS[index]->durability;
+			}
 
 			awake_chunk_at(position);
 		}
@@ -77,21 +85,31 @@ void CellGrid::cell_logic(int x, int y) {
 	short i = grid[x][y].index;
 	grid[x][y].updated = true;
 
-	bool bounded_y = false;
-	bool bounded_x = false;
-
-	if (y > 0 && y < dimensions.y - 1) {
-		bounded_y = true;
+	//is the position within the screenspace
+	if (!(y > 0 && y < dimensions.y - 1)) {
+		return;
 	}
-	if (x > 0 && x < dimensions.x - 1) {
-		bounded_x = true;
+	if (!(x > 0 && x < dimensions.x - 1)) {
+		return;
+	}
+
+	if (game->ELEMENTS[i]->name == "ACID") {
+		sf::Vector2i offsets[4] = {sf::Vector2i(0,1),sf::Vector2i(0,-1),sf::Vector2i(-1,0),sf::Vector2i(1,0) };
+		for (int of = 0; of < 4; of++) {
+			sf::Vector2i final_pos = sf::Vector2i(x, y) + offsets[of];
+			short current_index = grid[final_pos.x][final_pos.y].index;
+			if (current_index != -1 && current_index != i) { //the offsetted cell is not empty and is not acid
+				game->ELEMENTS[current_index]->acid_contact(*this, final_pos, grid[final_pos.x][final_pos.y]);
+				awake_chunk_at(sf::Vector2i(x, y));
+			}
+		}
 	}
 
 	//vertical travel
 	short vt = game->ELEMENTS[i]->gravity_direction;
 	short desired_spread = game->ELEMENTS[i]->desired_spread;
 
-	if (bounded_y && game->ELEMENTS[i]->travel_down) {
+	if (game->ELEMENTS[i]->travel_down) {
 
 		if (grid[x][y + vt].index == -1 || game->ELEMENTS[grid[x][y + vt].index]->density < game->ELEMENTS[i]->density) { //DOWN
 			//move to empty place
@@ -99,7 +117,7 @@ void CellGrid::cell_logic(int x, int y) {
 			return;
 		}
 	}
-	if (bounded_y && bounded_x && game->ELEMENTS[i]->travel_down_diagonal) { //DIAGONAL
+	if (game->ELEMENTS[i]->travel_down_diagonal) { //DIAGONAL
 		if (grid[x][y].prefer_left) {
 			if (grid[x + 1][y + vt].index == -1 || game->ELEMENTS[grid[x + 1][y + vt].index]->density < game->ELEMENTS[i]->density) {
 				grid[x][y].prefer_left = false;
@@ -123,7 +141,7 @@ void CellGrid::cell_logic(int x, int y) {
 			return;
 		}
 	}
-	if (bounded_x && game->ELEMENTS[i]->travel_sideways) { //SIDEWAYS
+	if (game->ELEMENTS[i]->travel_sideways) { //SIDEWAYS
 		if (grid[x][y].prefer_left) {
 			if (grid[x - 1][y].index == -1) {
 				grid[x][y].prefer_left = true;
@@ -166,6 +184,7 @@ void CellGrid::awake_chunk_at(sf::Vector2i position) {
 		chunks[x][y].awake = true;
 	}
 }
+
 void CellGrid::update_chunk(Chunk& chunk, sf::RenderTexture& surface) {
 	sf::Vector2i offset = sf::Vector2i(chunk.rect.getPosition().x, chunk.rect.getPosition().y);
 	//iterating every cell

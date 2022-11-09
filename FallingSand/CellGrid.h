@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "Cell.h"
-#include "Element.h"
 #include "Chunk.h"
 
 class Game;
@@ -28,6 +27,7 @@ class CellGrid {
 	public:
 		CellGrid(Game*, sf::Vector2i dimensions);
 
+		void remove_cell(sf::Vector2i position);
 		void set_cell(sf::Vector2i position, short index);
 		void set_area(sf::Vector2i position, short index, short size);
 

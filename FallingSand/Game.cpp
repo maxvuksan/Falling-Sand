@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "CellGrid.h"
+#include "Element.h"
 
 Game::Game() :
 	WINDOW_SIZE(700, 700),
@@ -21,9 +22,10 @@ Game::Game() :
 	DISPLAY->create(DISPLAY_SIZE.x, DISPLAY_SIZE.y);
 	
 	ELEMENTS.push_back(new Sand);
-	ELEMENTS.push_back(new Water);
+	ELEMENTS.push_back(new Wood);
 	ELEMENTS.push_back(new Stone);
-	//ELEMENTS.push_back(new Smoke);
+	ELEMENTS.push_back(new Water);
+	ELEMENTS.push_back(new Acid);
 
 	ImGui::SFML::Init(*WINDOW);
 }

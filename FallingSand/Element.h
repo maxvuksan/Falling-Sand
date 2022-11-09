@@ -1,6 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+#include "Cell.h"
+#include "CellGrid.h"
+
 class Element { //DERIVED BY : MovingSolid, StaticSolid, Liquid and Gas
 
 	public:
@@ -15,11 +18,14 @@ class Element { //DERIVED BY : MovingSolid, StaticSolid, Liquid and Gas
 		short gravity_direction; //falling up or down? (down when =1, up when =-1)
 		bool is_static; //is the element stationary
 
+		short durability;
 		short density; //determines which objects fall through others, lighter dense elements will rise to top
 
 		sf::Color colour;
 
 		Element();
+
+		virtual void acid_contact(CellGrid&, sf::Vector2i, Cell&);
 };
 ///////////////////////////////
 class MovingSolid : public Element { // MINIMAL FLOWING e.g. Sand, Dirt
@@ -40,6 +46,10 @@ class Stone : public StaticSolid {
 	public:
 		Stone();
 };
+class Wood : public StaticSolid {
+	public:
+		Wood();
+};
 ///////////////////////////////
 class Liquid : public Element { // CONSTANT FLOWING e.g. Water, Lava
 	public:
@@ -48,6 +58,11 @@ class Liquid : public Element { // CONSTANT FLOWING e.g. Water, Lava
 class Water : public Liquid {
 	public:
 		Water();
+};
+class Acid : public Liquid {
+	public:
+		Acid();
+		void acid_contact(CellGrid&, sf::Vector2i, Cell&) override {}
 };
 ///////////////////////////////
 
